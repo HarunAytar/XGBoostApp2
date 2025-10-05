@@ -94,62 +94,21 @@ if st.button("Tahmin Et"):
     except Exception as e:
         st.error(f"⚠️ Tahmin yapılırken bir hata oluştu: {e}")
 
-# --- Tahmin sonuçlarını sessizce Excel'e kaydet ---
-import os
-import pandas as pd
+    # --- Tahmin geçmişine kaydet ---
+    yeni_kayit = X_input.copy()
+    yeni_kayit["Tahmin"] = tahmin
 
-try:
-    # Kullanıcı girdilerini ve tahmin sonuçlarını birleştir
-    row_data = {
-        "Aniloks numarası": aniloks_no,
-        "Klişe numarası": klise_no,
-        "Aniloks aktarma": aniloks_aktarim,
-        "klise_tıram_oranı": klise_tıram_oranı,
-        "siliv_capı": siliv_capı,
-        "tesa_esneme": tesa_esneme,
-        "hiz": hiz,
-        "bicak_aniloks_mesafe": bicak_aniloks_mesafe,
-        "aniloks_klise_mesafe": aniloks_klise_mesafe,
-        "klise_tambur_mesafe": klise_tambur_mesafe,
-        "basılacak_film_uzunluk": basılacak_film_uzunluk,
-        "hazırlanan_boya_visko": hazırlanan_boya_visko,
-        "referans_renk_L": referans_renk_L,
-        "referans_renk_a": referans_renk_a,
-        "referans_renk_b": referans_renk_b,
-        "film_renk_L": film_renk_L,
-        "film_renk_a": film_renk_a,
-        "film_renk_b": film_renk_b,
-        "film_seffaflık": film_seffaflık,
-        "film_kalınlık": film_kalınlık,
-        "Tahmin L": prediction[0][0],
-        "Tahmin a": prediction[0][1],
-        "Tahmin b": prediction[0][2]
-    }
-
-    df_output = pd.DataFrame([row_data])
-    excel_file = "tahmin_gecmisi.xlsx"
-
-    if os.path.exists(excel_file):
-        existing_df = pd.read_excel(excel_file)
-        updated_df = pd.concat([existing_df, df_output], ignore_index=True)
+    if os.path.exists("tahmin_gecmisi.xlsx"):
+        mevcut = pd.read_excel("tahmin_gecmisi.xlsx")
+        guncel = pd.concat([mevcut, yeni_kayit], ignore_index=True)
     else:
-        updated_df = df_output
+        guncel = yeni_kayit
 
-    updated_df.to_excel(excel_file, index=False)
+    guncel.to_excel("tahmin_gecmisi.xlsx", index=False)
 
-except Exception as e:
-    # Eğer kayıt başarısız olursa hata vermesin (arka planda sessizce geçsin)
-    pass
-
-import io
-import os
-import streamlit as st
-
-# Dosya var mı, kontrol et ve bilgi göster
-st.write("Çalışma dizini:", os.getcwd())
-st.write("Dosya var mı:", os.path.exists("tahmin_gecmisi.xlsx"))
-
-# Dosya varsa indirme butonunu göster
+# --- İndir butonu ---
+st.divider()
+st.subheader("📂 Tahmin Geçmişi")
 if os.path.exists("tahmin_gecmisi.xlsx"):
     with open("tahmin_gecmisi.xlsx", "rb") as f:
         st.download_button(
@@ -158,6 +117,8 @@ if os.path.exists("tahmin_gecmisi.xlsx"):
             file_name="tahmin_gecmisi.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+else:
+    st.info("Henüz tahmin geçmişi oluşturulmadı.")
 
 
 
