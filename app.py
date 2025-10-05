@@ -142,8 +142,14 @@ except Exception as e:
     pass
 
 import io
+import os
 import streamlit as st
 
+# Dosya var mı, kontrol et ve bilgi göster
+st.write("Çalışma dizini:", os.getcwd())
+st.write("Dosya var mı:", os.path.exists("tahmin_gecmisi.xlsx"))
+
+# Dosya varsa indirme butonunu göster
 if os.path.exists("tahmin_gecmisi.xlsx"):
     with open("tahmin_gecmisi.xlsx", "rb") as f:
         st.download_button(
@@ -152,6 +158,8 @@ if os.path.exists("tahmin_gecmisi.xlsx"):
             file_name="tahmin_gecmisi.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
+
 
 
 
