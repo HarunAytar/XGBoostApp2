@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import os
 
 # 1️⃣ Model ve encoder yükle
 @st.cache_resource
@@ -37,7 +38,7 @@ film_seffaflık = st.number_input("Film şeffaflık", step=0.1)
 film_kalınlık = st.number_input("Film kalınlık", step=0.1)
 
 # 3️⃣ DataFrame oluştur
-data = {
+df_new = pd.DataFrame([{
     "aniloks_no": aniloks_no,
     "klise_no": klise_no,
     "aniloks_aktarma": aniloks_aktarma,
@@ -58,8 +59,7 @@ data = {
     "film_renk_b": film_renk_b,
     "film_seffaflık": film_seffaflık,
     "film_kalınlık": film_kalınlık,
-}
-df_new = pd.DataFrame([data])
+}])
 
 # 4️⃣ Tahmin butonu
 if st.button("Tahmin Et"):
@@ -77,34 +77,32 @@ if st.button("Tahmin Et"):
         # Tüm sütunları birleştir
         df_new_encoded = pd.concat([encoded_cat_df, numeric_new_df], axis=1)
 
-        # Modelin beklediği sütun sırasını ayarla
-        model_features = model.estimators_[0].get_booster().feature_names
-        df_new_encoded = df_new_encoded[model_features]
-
         # Tahmin yap
         prediction = model.predict(df_new_encoded)
 
-        # Sonuçları göster
+        # --- Sonuçları göster ---
         st.success("✅ Tahmin başarıyla tamamlandı!")
         st.write("### 🎯 Tahmin Sonuçları:")
         st.write(f"**Hazırlanan boya L:** {prediction[0][0]:.2f}")
         st.write(f"**Hazırlanan boya a:** {prediction[0][1]:.2f}")
         st.write(f"**Hazırlanan boya b:** {prediction[0][2]:.2f}")
 
+        # --- Tahmin geçmişine kaydet ---
+        tahmin_df = df_new.copy()
+        tahmin_df["Tahmin_L"] = prediction[0][0]
+        tahmin_df["Tahmin_a"] = prediction[0][1]
+        tahmin_df["Tahmin_b"] = prediction[0][2]
+
+        if os.path.exists("tahmin_gecmisi.xlsx"):
+            mevcut = pd.read_excel("tahmin_gecmisi.xlsx")
+            guncel = pd.concat([mevcut, tahmin_df], ignore_index=True)
+        else:
+            guncel = tahmin_df
+
+        guncel.to_excel("tahmin_gecmisi.xlsx", index=False)
+
     except Exception as e:
         st.error(f"⚠️ Tahmin yapılırken bir hata oluştu: {e}")
-
-    # --- Tahmin geçmişine kaydet ---
-    yeni_kayit = X_input.copy()
-    yeni_kayit["Tahmin"] = tahmin
-
-    if os.path.exists("tahmin_gecmisi.xlsx"):
-        mevcut = pd.read_excel("tahmin_gecmisi.xlsx")
-        guncel = pd.concat([mevcut, yeni_kayit], ignore_index=True)
-    else:
-        guncel = yeni_kayit
-
-    guncel.to_excel("tahmin_gecmisi.xlsx", index=False)
 
 # --- İndir butonu ---
 st.divider()
