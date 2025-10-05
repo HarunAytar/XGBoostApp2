@@ -17,7 +17,7 @@ st.write("Lütfen aşağıdaki bilgileri girin ve tahmin almak için 'Tahmin Et'
 # 2️⃣ Kullanıcıdan verileri al
 aniloks_no = st.number_input("Aniloks numarası", min_value=1, step=1)
 klise_no = st.number_input("Klişe numarası", min_value=1, step=1)
-aniloks_aktarma = st.number_input("Aniloks aktarma değeri", step=0.1)
+aniloks_aktarma = st.number_input("Aniloks aktarma değeri", step=)
 klise_tıram_oranı = st.number_input("Klişe tıram oranı", step=0.1)
 siliv_capı = st.number_input("Siliv çapı", step=0.1)
 tesa_esneme = st.number_input("Tesa esneme", step=0.1)
@@ -93,3 +93,4 @@ if st.button("Tahmin Et"):
 
     except Exception as e:
         st.error(f"⚠️ Tahmin yapılırken bir hata oluştu: {e}")
+
