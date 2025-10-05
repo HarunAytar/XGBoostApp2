@@ -141,5 +141,17 @@ except Exception as e:
     # Eğer kayıt başarısız olursa hata vermesin (arka planda sessizce geçsin)
     pass
 
+import io
+import streamlit as st
+
+if os.path.exists("tahmin_gecmisi.xlsx"):
+    with open("tahmin_gecmisi.xlsx", "rb") as f:
+        st.download_button(
+            label="📥 Tahmin geçmişini indir",
+            data=f,
+            file_name="tahmin_gecmisi.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
 
 
