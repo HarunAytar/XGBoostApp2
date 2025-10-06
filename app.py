@@ -1,6 +1,7 @@
-import streamlit as st
+import streamlit as st 
 import pandas as pd
 import joblib
+import os
 
 # 1️⃣ Model ve encoder yükle
 @st.cache_resource
@@ -91,11 +92,35 @@ if st.button("Tahmin Et"):
         st.write(f"**Hazırlanan boya a:** {prediction[0][1]:.2f}")
         st.write(f"**Hazırlanan boya b:** {prediction[0][2]:.2f}")
 
+        # 5️⃣ Tahmin sonuçlarını Excel'e kaydet
+        df_new["tahmin_L"] = prediction[0][0]
+        df_new["tahmin_a"] = prediction[0][1]
+        df_new["tahmin_b"] = prediction[0][2]
+
+        file_path = "results.xlsx"
+
+        if os.path.exists(file_path):
+            # Dosya varsa, mevcut verileri oku ve yeni satırı ekle
+            existing_df = pd.read_excel(file_path)
+            updated_df = pd.concat([existing_df, df_new], ignore_index=True)
+        else:
+            # Dosya yoksa yeni bir tane oluştur
+            updated_df = df_new
+
+        updated_df.to_excel(file_path, index=False)
+
+        st.info("📂 Tahmin verileri Excel dosyasına kaydedildi!")
+
     except Exception as e:
         st.error(f"⚠️ Tahmin yapılırken bir hata oluştu: {e}")
 
-
-
-
-
+# 6️⃣ Yönetici için indirilebilir dosya butonu
+if os.path.exists("results.xlsx"):
+    with open("results.xlsx", "rb") as f:
+        st.download_button(
+            label="📥 Kaydedilen Sonuçları İndir (Excel)",
+            data=f,
+            file_name="tahmin_sonuclari.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
